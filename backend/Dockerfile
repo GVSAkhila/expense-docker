@@ -20,5 +20,5 @@ WORKDIR /opt/server
 COPY package.json .
 RUN npm install && npm cache clean --force
 COPY *.js .
-uSER expense
+USER expense
 CMD ["node", "index.js"]
