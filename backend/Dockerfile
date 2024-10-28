@@ -1,4 +1,21 @@
-#Before best practices implemented
+FROM node:20 AS builder
+WORKDIR /opt/server
+COPY package.json .
+COPY *.js .
+RUN npm install
+
+
+FROM node:20.18.0-alpine3.20
+EXPOSE 8080
+ENV DB_HOST="mysql"
+RUN addgroup -S expense && adduser -S expense -G expense && \
+    mkdir /opt/server && \
+    chown -R expense:expense /opt/server
+WORKDIR /opt/server
+COPY --from=builder /opt/server /opt/server
+USER expense
+CMD ["node", "index.js"]
+# Before best practices implemented
 # FROM node:20
 # EXPOSE 8080
 # ENV DB_HOST="mysql"
@@ -8,17 +25,3 @@
 # COPY *.js .
 # RUN npm install
 # CMD ["node", "index.js"]
-# after best practice
-
-FROM node:20.18.0-alpine3.20
-EXPOSE 8080
-ENV DB_HOST="mysql"
-RUN addgroup -S expense && adduser -S expense -G expense 
-RUN mkdir -p /opt/server
-RUN chown -R expense:expense /opt/server
-WORKDIR /opt/server
-COPY package.json .
-RUN npm install && npm cache clean --force
-COPY *.js .
-USER expense
-CMD ["node", "index.js"]
